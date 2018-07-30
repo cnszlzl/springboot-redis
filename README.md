@@ -3,7 +3,7 @@
 
 ## 流程
 - clone code
-```https request
+```git
 git clone https://github.com/DongCarzy/springboot-redis.git
 
 ```
