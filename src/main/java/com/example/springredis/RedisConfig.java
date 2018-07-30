@@ -42,7 +42,7 @@ public class RedisConfig {
         //  订阅了一个通道
         MessageListenerAdapter listenerAdapter = new MessageListenerAdapter(redisUserReceiver);
         container.addMessageListener(listenerAdapter, new PatternTopic(RedisChannel.USER_CHANNEL));
-        container.addMessageListener(new MessageListenerAdapter(redisUser2Receiver), new PatternTopic(RedisChannel.USER_CHANNEL));
+        container.addMessageListener(new MessageListenerAdapter(redisUser2Receiver), new PatternTopic(RedisChannel.USER2_CHANNEL));
 
         // 匹配多个  channel
         container.addMessageListener(new MessageListenerAdapter(allReceiver), new PatternTopic("topic_*"));
