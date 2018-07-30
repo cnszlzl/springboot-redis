@@ -73,7 +73,7 @@ public class RedisAutoConfiguration {
 
 ```
 #### 自定义方案
-只定义其中一个即可满足大多数情况的使用,可根据自己的情况自行定义虚拟化方案,重点在替换 `setConnectionFactory()`方法的值
+只定义其中一个即可满足大多数情况的使用,可根据自己的情况自行定义虚拟化方案,重点在替换 `setDefaultSerializer()`方法的值
 ```java
 @Configuration
 public class RedisConfig {
