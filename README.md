@@ -16,7 +16,7 @@ git clone https://github.com/DongCarzy/springboot-redis.git
      <parent>
          <groupId>org.springframework.boot</groupId>
          <artifactId>spring-boot-starter-parent</artifactId>
-         <version>2.0.3.RELEASE</version>
+         <version>2.0.4.RELEASE</version>
          <relativePath/> <!-- lookup parent from repository -->
      </parent>
  
@@ -34,6 +34,12 @@ git clone https://github.com/DongCarzy/springboot-redis.git
          <dependency>
              <groupId>org.springframework.boot</groupId>
              <artifactId>spring-boot-starter-web</artifactId>
+         </dependency>
+         <dependency>
+             <groupId>redis.clients</groupId>
+             <artifactId>jedis</artifactId>
+             <type>jar</type>
+             <scope>compile</scope>
          </dependency>
      </dependencies>
 ```
@@ -208,12 +214,34 @@ public class RedisUser2Receiver implements MessageListener {
 ``下面是重点戏, 如何配置我们的监听``, 即上面定义的三个接收器的注入       
 回到我们的 `RedisConfig.java` 文件,加上我们的监听即可       
 ```java
+package com.example.springredis;
+
+import com.example.springredis.redis.receiver.RedisAllReceiver;
+import com.example.springredis.redis.receiver.RedisUser2Receiver;
+import com.example.springredis.redis.receiver.RedisUserReceiver;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.listener.PatternTopic;
+import org.springframework.data.redis.listener.RedisMessageListenerContainer;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
+
+/**
+ * @author carzy
+ * @date 2018/07/18
+ */
 @Configuration
 public class RedisConfig {
 
     @Bean
-    @ConditionalOnMissingBean(name = {"redisTemplate"})
-    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnection) {
+    public JedisConnectionFactory redisConnection() {
+        return new JedisConnectionFactory();
+    }
+
+    @Bean("redisTemplate")
+    public RedisTemplate<String, Object> redisTemplate(JedisConnectionFactory redisConnection) {
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnection);
         redisTemplate.setDefaultSerializer(new GenericJackson2JsonRedisSerializer());
@@ -223,15 +251,16 @@ public class RedisConfig {
         return redisTemplate;
     }
 
-
     @Bean
-    RedisMessageListenerContainer container(RedisConnectionFactory redisConnection,
-                                            RedisUserReceiver redisUserReceiver, RedisUser2Receiver redisUser2Receiver, RedisAllReceiver allReceiver) {
+    public RedisMessageListenerContainer container(JedisConnectionFactory redisConnection,
+                                                   RedisUserReceiver redisUserReceiver,
+                                                   RedisUser2Receiver redisUser2Receiver,
+                                                   RedisAllReceiver allReceiver) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(redisConnection);
         //  订阅了一个通道
         container.addMessageListener(redisUserReceiver, new PatternTopic(RedisChannel.USER_CHANNEL));
-        container.addMessageListener(redisUser2Receiver, new PatternTopic(RedisChannel.USER_CHANNEL));
+        container.addMessageListener(redisUser2Receiver, new PatternTopic(RedisChannel.USER2_CHANNEL));
 
         // 匹配多个  channel
         container.addMessageListener(allReceiver, new PatternTopic("topic_*"));
