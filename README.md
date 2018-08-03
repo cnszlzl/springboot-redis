@@ -230,12 +230,11 @@ public class RedisConfig {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(redisConnection);
         //  订阅了一个通道
-        MessageListenerAdapter listenerAdapter = new MessageListenerAdapter(redisUserReceiver);
-        container.addMessageListener(listenerAdapter, new PatternTopic(RedisChannel.USER_CHANNEL));
-        container.addMessageListener(new MessageListenerAdapter(redisUser2Receiver), new PatternTopic(RedisChannel.USER_CHANNEL));
+        container.addMessageListener(redisUserReceiver, new PatternTopic(RedisChannel.USER_CHANNEL));
+        container.addMessageListener(redisUser2Receiver, new PatternTopic(RedisChannel.USER_CHANNEL));
 
         // 匹配多个  channel
-        container.addMessageListener(new MessageListenerAdapter(allReceiver), new PatternTopic("topic_*"));
+        container.addMessageListener(allReceiver, new PatternTopic("topic_*"));
         return container;
     }
 
@@ -247,9 +246,9 @@ public class RedisConfig {
 }
 
 ```
-- `MessageListenerAdapter` 是我们的监听适配器,可定义多个
-- `RedisMessageListenerContainer` 存放我们所有的 监听适配器 `MessageListenerAdapter`
-我定义个三个 `MessageListenerAdapter` 前两个分别指向固定的 `channel` : `topic_user` 和 `topic_user2` , 而最后一个采用了 匹配符 `*`, 表示可匹配 `topic_` 开头的所有通道
+- `MessageListener` 是我们的监听器,可定义多个: `RedisUserReceiver` redisUserReceiver, `RedisUser2Receiver` redisUser2Receiver, `RedisAllReceiver` allReceiver: 这里我定义了三个
+- `RedisMessageListenerContainer` 存放我们所有的 监听器 `MessageListener`
+我定义个三个 `MessageListener` 前两个分别指向固定的 `channel` : `topic_user` 和 `topic_user2` , 而最后一个采用了 匹配符 `*`, 表示可匹配 `topic_` 开头的所有通道
 
 ## 如何使用
 ### 部分代码

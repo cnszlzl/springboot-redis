@@ -8,17 +8,20 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.PatternTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
-import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
+import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+
 
 /**
  * @author carzy
  * @date 2018/07/18
  */
 @Configuration
+@EnableRedisRepositories
 public class RedisConfig {
 
     @Bean
@@ -35,17 +38,16 @@ public class RedisConfig {
 
 
     @Bean
-    RedisMessageListenerContainer container(RedisConnectionFactory redisConnection,
+    public RedisMessageListenerContainer container(RedisConnectionFactory redisConnection,
                                             RedisUserReceiver redisUserReceiver, RedisUser2Receiver redisUser2Receiver, RedisAllReceiver allReceiver) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(redisConnection);
         //  订阅了一个通道
-        MessageListenerAdapter listenerAdapter = new MessageListenerAdapter(redisUserReceiver);
-        container.addMessageListener(listenerAdapter, new PatternTopic(RedisChannel.USER_CHANNEL));
-        container.addMessageListener(new MessageListenerAdapter(redisUser2Receiver), new PatternTopic(RedisChannel.USER2_CHANNEL));
+        container.addMessageListener(redisUserReceiver, new PatternTopic(RedisChannel.USER_CHANNEL));
+        container.addMessageListener(redisUser2Receiver, new PatternTopic(RedisChannel.USER2_CHANNEL));
 
         // 匹配多个  channel
-        container.addMessageListener(new MessageListenerAdapter(allReceiver), new PatternTopic("topic_*"));
+        container.addMessageListener(allReceiver, new ChannelTopic(RedisChannel.USER_CHANNEL));
         return container;
     }
 

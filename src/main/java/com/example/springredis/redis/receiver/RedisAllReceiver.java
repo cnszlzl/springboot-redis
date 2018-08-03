@@ -33,4 +33,33 @@ public class RedisAllReceiver implements MessageListener {
         logger.info("topic_*: {}, value: {}", topic, itemValue);
     }
 
+//    @Override
+//    public void handleMessage(String message) {
+//        System.out.println("String");
+//        System.out.println(message);
+//    }
+//
+//    @Override
+//    public void handleMessage(Map message) {
+//        System.out.println("Map");
+//        System.out.println(message);
+//    }
+//
+//    @Override
+//    public void handleMessage(byte[] message) {
+//        System.out.println("byte[]");
+//        System.out.println(message);
+//    }
+
+//    @Override
+//    public void handleMessage(Serializable message) {
+//        System.out.println("Serializable");
+//        System.out.println(message);
+//    }
+
+//    @Override
+//    public void handleMessage(Serializable message, String channel) {
+//        System.out.println("Serializable-channel");
+//        System.out.println(message);
+//    }
 }
